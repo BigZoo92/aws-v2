@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
+        run: pnpm install
+
+      - name: 🧼 Lint frontend
+        run: pnpm --filter frontend lint
+
+      - name: 🧼 Lint backend
+        run: pnpm --filter backend lint
+
+      - name: 🧪 Run frontend tests
+        run: pnpm --filter frontend test
+
+      - name: 🧪 Run backend tests
+        run: pnpm --filter backend test
+
+      - name: 🏗 Build frontend
+        run: pnpm --filter frontend build
+
+      - name: 🏗 Build backend
+        run: pnpm --filter backend build
+
+      - name: 🐳 Docker build frontend
+        run: docker build -f frontend/Dockerfile -t test-frontend .
+
+      - name: 🐳 Docker build backend
+        run: docker build -f backend/Dockerfile -t test-backend .
