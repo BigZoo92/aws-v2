@@ -125,7 +125,11 @@ jobs:
                 git clone https://github.com/${{ github.repository }} ~/app-dev
             fi
             cd ~/app-dev
-            echo "${{ secrets.ENV_DEV }}" > .env
+            git fetch origin
+            git reset --hard origin/develop
+            echo "POSTGRES_PORT=5434" > .env
+            echo "BACKEND_PORT=3001" >> .env
+            echo "FRONTEND_PORT=4001" >> .env
             git pull origin develop
             docker compose down
             docker compose up -d --build
@@ -148,7 +152,11 @@ jobs:
                 git clone https://github.com/${{ github.repository }} ~/app-preprod
             fi
             cd ~/app-preprod
-            echo "${{ secrets.ENV_PREPROD }}" > .env
+            git fetch origin
+            git reset --hard origin/main
+            echo "POSTGRES_PORT=5433" > .env
+            echo "BACKEND_PORT=3002" >> .env
+            echo "FRONTEND_PORT=4002" >> .env
             git pull origin main
             docker compose down
             docker compose up -d --build
@@ -171,7 +179,9 @@ jobs:
                 git clone https://github.com/${{ github.repository }} ~/app-prod
             fi
             cd ~/app-prod
-            echo "${{ secrets.ENV_PROD }}" > .env
+            echo "POSTGRES_PORT=5432" > .env
+            echo "BACKEND_PORT=3001" >> .env
+            echo "FRONTEND_PORT=4001" >> .env
             git fetch --all --tags
             git checkout ${{ github.ref_name }}
             docker compose down
