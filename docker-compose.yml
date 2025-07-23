@@ -24,7 +24,7 @@ services:
     depends_on:
       - db
     ports:
-      - "3000:3000"
+      - "${BACKEND_PORT}:3000"
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
     networks:
@@ -37,7 +37,7 @@ services:
       args:
         NODE_ENV: local
     ports:
-      - "5173:4173"
+      - "${FRONTEND_PORT}:4173"
     depends_on:
       - backend
     networks:
