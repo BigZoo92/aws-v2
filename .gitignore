@@ -9,6 +9,8 @@ lerna-debug.log*
 
 node_modules
 dist
+# TypeScript build outputs
+**/dist
 dist-ssr
 *.local
 
