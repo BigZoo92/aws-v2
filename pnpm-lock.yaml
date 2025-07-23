@@ -54,7 +54,7 @@ importers:
         specifier: ^9.0.2
         version: 9.0.2
       pg:
-        specifier: ^8.10.0
+        specifier: ^8.16.3
         version: 8.16.3
     devDependencies:
       '@types/bcrypt':
@@ -72,6 +72,9 @@ importers:
       '@types/node':
         specifier: ^20.4.1
         version: 20.19.9
+      '@types/pg':
+        specifier: ^8.15.4
+        version: 8.15.4
       tsx:
         specifier: ^4.7.0
         version: 4.20.3
@@ -734,6 +737,9 @@ packages:
 
   '@types/node@20.19.9':
     resolution: {integrity: sha512-cuVNgarYWZqxRJDQHEB58GEONhOK79QVR/qYx4S7kcUObQvUwvFnYxJuuHUKm2aieN9X3yZB4LZsuYNU1Qphsw==}
+
+  '@types/pg@8.15.4':
+    resolution: {integrity: sha512-I6UNVBAoYbvuWkkU3oosC8yxqH21f4/Jc4DK71JLG3dT2mdlGe1z+ep/LQGXaKaOgcvUrsQoPRqfgtMcvZiJhg==}
 
   '@types/qs@6.14.0':
     resolution: {integrity: sha512-eOunJqu0K1923aExK6y8p6fsihYEn/BYuQ4g0CxAAgFc4b/ZLN4CrsRZ55srTdqoiLzU2B2evC+apEIxprEzkQ==}
@@ -2784,6 +2790,12 @@ snapshots:
   '@types/node@20.19.9':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/pg@8.15.4':
+    dependencies:
+      '@types/node': 20.19.9
+      pg-protocol: 1.10.3
+      pg-types: 2.2.0
 
   '@types/qs@6.14.0': {}
 
