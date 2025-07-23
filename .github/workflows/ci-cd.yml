@@ -123,7 +123,10 @@ jobs:
       - name: Deploy to DEV
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            cd ~/app-dev || git clone https://github.com/${{ github.repository }} ~/app-dev
+            if [ ! -d ~/app-dev/.git ]; then
+                rm -rf ~/app-dev
+                git clone https://github.com/${{ github.repository }} ~/app-dev
+            fi
             cd ~/app-dev
             git pull origin develop
             docker compose down
@@ -145,7 +148,10 @@ jobs:
       - name: Deploy to PREPROD
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            cd ~/app-preprod || git clone https://github.com/${{ github.repository }} ~/app-preprod
+            if [ ! -d ~/app-preprod/.git ]; then
+                rm -rf ~/app-preprod
+                git clone https://github.com/${{ github.repository }} ~/app-preprod
+            fi
             cd ~/app-preprod
             git pull origin main
             docker compose down
@@ -167,7 +173,10 @@ jobs:
       - name: Deploy to PROD
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            cd ~/app-prod || git clone https://github.com/${{ github.repository }} ~/app-prod
+            if [ ! -d ~/app-prod/.git ]; then
+                rm -rf ~/app-prod
+                git clone https://github.com/${{ github.repository }} ~/app-prod
+            fi
             cd ~/app-prod
             git fetch --all --tags
             git checkout ${{ github.ref_name }}
