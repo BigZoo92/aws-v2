@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 function App() {
   const [status, setStatus] = useState<string | null>(null);
-
+  `${apiUrl}`;
   useEffect(() => {
-    fetch('http://54.246.79.227:3000')
+    fetch(`${apiUrl}`)
       .then((res) => res)
       .then((data) => {
         console.log(data);
@@ -14,7 +15,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetch('http://54.246.79.227:3000/test-db')
+    fetch(`${apiUrl}/test-db`)
       .then((res) => res)
       .then((res) => console.log(res))
       .catch((err) => console.log(err));
