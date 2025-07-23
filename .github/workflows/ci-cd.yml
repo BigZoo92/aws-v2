@@ -4,38 +4,52 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request:
+  release:
+    types: [created]
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   # -----------------------------
   # CI JOB : INSTALL + LINT + TEST + BUILD
   # -----------------------------
   setup:
-    name: 📦 Install dependencies
+    name: 📦 Setup environment & install deps (cached)
     runs-on: ubuntu-latest
     outputs:
-      cache-hit: ${{ steps.deps.outputs.cache-hit }}
+      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🧰 Setup PNPM
+      - name: 🛠️ Setup Node.js & PNPM
         uses: pnpm/action-setup@v2
         with:
           version: 9
 
-      - name: ⚙️ Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
 
-      - name: 📦 Install dependencies
-        id: deps
+      - name: ✨ Cache PNPM deps
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: 📆 Install deps
         run: pnpm install
 
   lint:
-    name: 🧼 Lint (frontend + backend)
+    name: 🧼 Lint
     runs-on: ubuntu-latest
     needs: setup
     steps:
@@ -52,7 +66,7 @@ jobs:
       - run: pnpm --filter backend lint
 
   test:
-    name: 🧪 Tests (frontend + backend)
+    name: 🧪 Tests
     runs-on: ubuntu-latest
     needs: setup
     steps:
@@ -69,7 +83,7 @@ jobs:
       - run: pnpm --filter backend test
 
   build:
-    name: 🏗 Build + Docker Build
+    name: 🏗 Build + Docker
     runs-on: ubuntu-latest
     needs: [lint, test]
     steps:
@@ -92,27 +106,62 @@ jobs:
         run: docker build -f backend/Dockerfile -t test-backend .
 
   # -----------------------------
-  # CD JOB : DEPLOY TO EC2 (ONLY IF MAIN)
+  # CD JOBS : deploy depending on environment
   # -----------------------------
-  deploy:
-    name: 🚀 Deploy to EC2
+  deploy-dev:
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main'
     steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🔐 Setup SSH
+      - name: Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-
-      - name: 🚀 Deploy
+      - name: Deploy to DEV
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            cd ~/app
-            git pull origin main || git clone https://github.com/${{ github.repository }} .
+            cd ~/app-dev || git clone https://github.com/${{ github.repository }} ~/app-dev
+            cd ~/app-dev
+            git pull origin develop
+            docker compose down
+            docker compose up -d --build
+          EOF
+
+  deploy-preprod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+      - name: Deploy to PREPROD
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            cd ~/app-preprod || git clone https://github.com/${{ github.repository }} ~/app-preprod
+            cd ~/app-preprod
+            git pull origin main
+            docker compose down
+            docker compose up -d --build
+          EOF
+
+  deploy-prod:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+      - name: Deploy to PROD
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            cd ~/app-prod || git clone https://github.com/${{ github.repository }} ~/app-prod
+            cd ~/app-prod
+            git fetch --all --tags
+            git checkout ${{ github.ref_name }}
             docker compose down
             docker compose up -d --build
           EOF
