@@ -1,4 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import type { Product } from '../../db-schema';
 import { Link } from 'react-router-dom';
 
@@ -8,8 +14,8 @@ export default function ProductCRUD() {
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState<Partial<Product>>({ title: '', description: '', price: null, user_id: 1 });
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -23,7 +29,9 @@ export default function ProductCRUD() {
     }
   };
 
-  useEffect(() => { fetchProducts(); }, []);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
@@ -34,19 +42,13 @@ export default function ProductCRUD() {
     setLoading(true);
     setError(null);
     try {
-      if (editingId) {
-        await fetch(`${API}/${editingId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
-        });
-      } else {
-        await fetch(API, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
-        });
-      }
+      const method = editingId ? 'PUT' : 'POST';
+      const url = editingId ? `${API}/${editingId}` : API;
+      await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
       setForm({ title: '', description: '', price: null, user_id: 1 });
       setEditingId(null);
       fetchProducts();
@@ -76,28 +78,70 @@ export default function ProductCRUD() {
   };
 
   return (
-    <div>
-      <h2>Produits</h2>
-      {error && <div style={{color:'red'}}>{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <input name="title" placeholder="Titre" value={form.title || ''} onChange={handleChange} required />
-        <textarea name="description" placeholder="Description" value={form.description || ''} onChange={handleChange} />
-        <input name="price" type="number" placeholder="Prix" value={form.price ?? ''} onChange={handleChange} />
-        <button type="submit" disabled={loading}>{editingId ? 'Modifier' : 'Créer'}</button>
-        {editingId && <button type="button" onClick={() => { setEditingId(null); setForm({ title: '', description: '', price: null, user_id: 1 }); }}>Annuler</button>}
+    <div className="max-w-2xl mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-4">Produits</h2>
+
+      {error && <div className="text-red-500 mb-4">{error}</div>}
+
+      <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+        <div>
+          <Label htmlFor="title">Titre</Label>
+          <Input id="title" name="title" value={form.title || ''} onChange={handleChange} required />
+        </div>
+
+        <div>
+          <Label htmlFor="description">Description</Label>
+          <Textarea id="description" name="description" value={form.description || ''} onChange={handleChange} />
+        </div>
+
+        <div>
+          <Label htmlFor="price">Prix (€)</Label>
+          <Input id="price" name="price" type="number" value={form.price ?? ''} onChange={handleChange} />
+        </div>
+
+        <div className="flex space-x-2">
+          <Button type="submit" disabled={loading}>
+            {editingId ? 'Modifier' : 'Créer'}
+          </Button>
+          {editingId && (
+            <Button variant="outline" type="button" onClick={() => {
+              setEditingId(null);
+              setForm({ title: '', description: '', price: null, user_id: 1 });
+            }}>
+              Annuler
+            </Button>
+          )}
+        </div>
       </form>
-      <ul>
+
+      <Separator className="mb-6" />
+
+      <div className="space-y-4">
         {products.map(p => (
-          <li key={p.id}>
-            <b>{p.title}</b> ({p.price} €) <br/>
-            <button onClick={() => handleEdit(p)}>Edit</button>
-            <button onClick={() => handleDelete(p.id)}>Delete</button>
-            <Link to={`/products/${p.id}`}>
-              <button>Détail</button>
-            </Link>
-          </li>
+          <Card key={p.id}>
+            <CardContent className="p-4 space-y-2">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold">{p.title}</h3>
+                  <p className="text-sm text-muted-foreground">{p.description}</p>
+                  <p className="font-bold mt-1">{p.price} €</p>
+                </div>
+                <div className="flex flex-col space-y-2 items-end">
+                  <Button size="sm" variant="default" onClick={() => handleEdit(p)}>
+                    Modifier
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => handleDelete(p.id)}>
+                    Supprimer
+                  </Button>
+                  <Link to={`/products/${p.id}`}>
+                    <Button size="sm" variant="outline">Détail</Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
