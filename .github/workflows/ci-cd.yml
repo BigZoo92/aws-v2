@@ -130,6 +130,9 @@ jobs:
             echo "POSTGRES_PORT=5433" > .env
             echo "BACKEND_PORT=3002" >> .env
             echo "FRONTEND_PORT=4002" >> .env
+            echo "PROMETHEUS_PORT=9091" >> .env
+            echo "NODE_EXPORTER_PORT=9101" >> .env
+            echo "GRAPHANA_PORT=3005" >> .env
             echo "VITE_API_URL=http://34.254.182.93:3002" >> frontend/.env
             docker compose down
             docker compose up -d --build
@@ -155,6 +158,9 @@ jobs:
             echo "POSTGRES_PORT=5432" > .env
             echo "BACKEND_PORT=3004" >> .env
             echo "FRONTEND_PORT=4004" >> .env
+            echo "PROMETHEUS_PORT=9092" >> .env
+            echo "NODE_EXPORTER_PORT=9102" >> .env
+            echo "GRAPHANA_PORT=3006" >> .env
             echo "VITE_API_URL=http://34.254.182.93:3004" >> frontend/.env
             git fetch --all --tags
             git checkout tags/${{ github.ref_name }} -b temp-${{ github.ref_name }}

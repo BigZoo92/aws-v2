@@ -43,7 +43,7 @@ services:
   prometheus:
     image: prom/prometheus
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT}:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
@@ -52,14 +52,14 @@ services:
   node-exporter:
     image: prom/node-exporter
     ports:
-      - "9100:9100"
+      - "${NODE_EXPORTER_PORT}:9100"
     networks:
       - app-network
 
   grafana:
     image: grafana/grafana
     ports:
-      - "3005:3000"
+      - "${GRAPHANA_PORT}:3000"
     networks:
       - app-network
     volumes:
