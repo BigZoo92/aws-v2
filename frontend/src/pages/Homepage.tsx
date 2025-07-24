@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import SigninForm from './auth/components/SigninForm';
 import SignupForm, { type SignupData } from './auth/components/SignupForm';
 import { signup } from './auth/services/auth';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Homepage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -22,7 +23,7 @@ export default function Homepage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700 flex flex-col gap-8 items-center justify-center p-4">
       <div className="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all">
         <div className="flex justify-center gap-4 mb-6">
           <Button
@@ -49,6 +50,17 @@ export default function Homepage() {
           )}
         </div>
       </div>
+      <Card>
+        <CardContent>
+          <CardTitle>Wesh</CardTitle>
+          Nombre d'utilisateurs inscrits : 1
+        </CardContent>
+
+        <CardContent>
+          <CardTitle>Wesh 2</CardTitle>
+          Nombre de produits sur notre site : 1
+        </CardContent>
+      </Card>
     </div>
   );
 }
