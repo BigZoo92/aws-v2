@@ -23,7 +23,7 @@ export default function Homepage() {
       toast('Compte créé avec succès');
       setMode('login');
     } else {
-      toast('Erreur lors de la création du compte', {
+      toast('argh', {
         description: result.message,
       });
     }

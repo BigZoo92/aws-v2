@@ -1,7 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import ProductPage from './pages/products/ProductPage';
 import Homepage from './pages/Homepage';
-import ProductsPage from './products/ProductPage';
+import ProductCRUD from './pages/products/ProductCRUD';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import { ProtectedRoutes } from './ProtectedRoutes';
 
@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     path: '/products',
     element: (
       <ProtectedRoutes>
-        <ProductsPage />
+        <ProductCRUD />
       </ProtectedRoutes>
     ),
   },

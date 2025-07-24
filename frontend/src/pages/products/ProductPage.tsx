@@ -7,9 +7,11 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { fetchComments, postComment } from './services/comments';
+import { useUser } from '@/providers/UserProvider';
 
 export default function ProductPage() {
   const { id } = useParams();
+  const { user } = useUser();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +22,7 @@ export default function ProductPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:3000/products/${id} `)
+    fetch(`${import.meta.env.VITE_API_URL}/products/${id} `)
       .then((res) => {
         if (!res.ok) throw new Error('Produit non trouvé');
         return res.json();
@@ -47,13 +49,6 @@ export default function ProductPage() {
     e.preventDefault();
     if (!comment.trim() || !id) return;
     setLoadingComments(true);
-    postComment(Number(id), 1, comment)
-      .then((newComment) => {
-        setComments([newComment, ...comments]);
-        setComment('');
-      })
-      .catch(() => setErrorComments('Erreur lors de la publication du commentaire'))
-      .finally(() => setLoadingComments(false));
   };
 
   if (loading) {
@@ -112,7 +107,15 @@ export default function ProductPage() {
           onChange={(e) => setComment(e.target.value)}
           disabled={loadingComments}
         />
-        <Button type="submit" disabled={loadingComments || !comment.trim()}>
+        <Button
+          type="submit"
+          disabled={loadingComments || !comment.trim()}
+          onClick={async () => {
+            if (!user || user === 'loading') return;
+            console.log('wesh');
+            await postComment(Number(id), user.id, comment);
+          }}
+        >
           Publier
         </Button>
       </form>
