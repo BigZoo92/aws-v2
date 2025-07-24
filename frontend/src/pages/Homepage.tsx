@@ -1,14 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import SigninForm from './auth/components/SigninForm';
 import SignupForm, { type SignupData } from './auth/components/SignupForm';
 import { signup } from './auth/services/auth';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import { fetchStats } from '@/lib/getStats';
 
 export default function Homepage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [totalUsers, setTotalUsers] = useState<number | null>(null);
+  const [totalProducts, setTotalProducts] = useState<number | null>(null);
 
   const handleSignup = async (data: SignupData) => {
     const result = await signup(data);
@@ -21,6 +24,21 @@ export default function Homepage() {
       });
     }
   };
+
+  useEffect(() => {
+    const getStats = async () => {
+      const res = await fetchStats();
+
+      if (res.success) {
+        setTotalUsers(res.totalUsers);
+        setTotalProducts(res.totalProducts);
+      } else {
+        toast.error(res.message || 'Erreur lors de la récupération des stats');
+      }
+    };
+
+    getStats();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700 flex flex-col gap-8 items-center justify-center p-4">
@@ -53,12 +71,12 @@ export default function Homepage() {
       <Card>
         <CardContent>
           <CardTitle>Wesh</CardTitle>
-          Nombre d'utilisateurs inscrits : 1
+          Nombre d'utilisateurs inscrits : {totalUsers}
         </CardContent>
 
         <CardContent>
           <CardTitle>Wesh 2</CardTitle>
-          Nombre de produits sur notre site : 1
+          Nombre de produits sur notre site : {totalProducts}
         </CardContent>
       </Card>
     </div>

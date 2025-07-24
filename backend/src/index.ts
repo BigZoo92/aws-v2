@@ -6,6 +6,7 @@ import authRouter from './routes/auth';
 import commentsRouter from './routes/comments';
 import meRoutes from './routes/me';
 import cookieParser from 'cookie-parser';
+import statsRoutes from './routes/stats';
 
 dotenv.config();
 const app = express();
@@ -28,6 +29,8 @@ app.use('/auth', authRouter);
 app.use('/products', productsRouter);
 app.use('/comments', commentsRouter);
 app.use(meRoutes);
+
+app.use('/stats', statsRoutes);
 
 app.get('/', (_, res) => res.send('API OK ✅'));
 
