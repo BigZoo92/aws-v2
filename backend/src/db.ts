@@ -10,8 +10,4 @@ const pool = new Pool({
   port: 5434,
 });
 
-pool.on('connect', async (client) => {
-  await client.query('SET search_path TO app_schema');
-});
-
 export default pool;
