@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import * as products from './products';
+import authRouter from './routes/auth';
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -54,6 +55,7 @@ app.delete('/products/:id', async (req, res) => {
     res.status(500).json({ error: 'Erreur suppression produit' });
   }
 });
+app.use('/auth', authRouter);
 
 app.get('/', (_, res) => res.send('API OK ✅'));
 
