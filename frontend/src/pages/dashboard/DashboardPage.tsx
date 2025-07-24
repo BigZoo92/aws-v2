@@ -1,0 +1,137 @@
+import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from 'react-router-dom';
+
+// TODO: Remplacer user_id par l'id de l'utilisateur connecté quand l'auth sera en place
+const user_id = 1;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/";
+
+export default function Dashboard() {
+  const [user, setUser] = useState<any>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [comments, setComments] = useState<any[]>([]);
+  const [editName, setEditName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  useEffect(() => {
+    // TODO: Remplacer par un appel API qui récupère l'utilisateur connecté
+    fetch(`${API_URL}users/${user_id}`)
+      .then(res => res.json())
+      .then(data => {
+        setUser(data);
+        setEditName(data.name);
+      });
+    fetch(`${API_URL}products?user_id=${user_id}`)
+      .then(res => res.json())
+      .then(prods => {
+        setProducts(prods);
+        if (prods.length === 0) {
+          setComments([]);
+          return;
+        }
+        // Récupère tous les commentaires liés à ces produits via une seule route
+        const productIds = prods.map((p: any) => p.id);
+        const body = { productIds };
+
+        fetch(`${API_URL}comments/by-products`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        })
+          .then(r => r.json())
+          .then((allComments: any) => {
+            if (!Array.isArray(allComments)) {
+              setComments([]);
+              return;
+            }
+            // Filtre les commentaires pour ne garder que ceux de l'utilisateur
+            const flat = allComments.filter((c: any) => c.user_id === user_id);
+            setComments(flat);
+          });
+      });
+  }, []);
+
+  const handleNameChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    const res = await fetch(`${API_URL}users/${user_id}/name`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: editName })
+    });
+    if (res.ok) {
+      setSuccess("Nom modifié avec succès");
+      setUser({ ...user, name: editName });
+    } else {
+      setError("Erreur lors de la modification du nom");
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-6 space-y-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Informations personnelles</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <form onSubmit={handleNameChange} className="space-y-2">
+            <div>
+              <label htmlFor="name">Nom</label>
+              <Input id="name" value={editName} onChange={e => setEditName(e.target.value)} />
+            </div>
+            <Button type="submit">Modifier le nom</Button>
+          </form>
+          {error && <div className="text-red-500">{error}</div>}
+          {success && <div className="text-green-600">{success}</div>}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Mes produits</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {products.length === 0 ? (
+            <div className="text-muted-foreground">Aucun produit créé.</div>
+          ) : (
+            <ul className="space-y-2">
+              {products.map((p: any) => (
+                <li key={p.id} className="border-b pb-2 flex justify-between">
+                  <div>
+                    <span className="font-semibold">{p.title}</span> — {p.price} €
+                  </div>
+                  <Link to={`/products/${p.id}`}>
+                    <Button size="sm" variant="outline">Voir</Button>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            
+            
+          )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Mes commentaires</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {comments.length === 0 ? (
+            <div className="text-muted-foreground">Aucun commentaire laissé.</div>
+          ) : (
+            <ul className="space-y-2">
+              {comments.map((c: any) => (
+                <li key={c.id} className="border-b pb-2">
+                  <span className="font-semibold">Sur produit #{c.product_id}</span> — {c.content}
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

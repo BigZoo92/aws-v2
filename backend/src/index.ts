@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import productsRouter from './routes/products';
+import usersRouter from './routes/users';
 import authRouter from './routes/auth';
 import commentsRouter from './routes/comments';
 import meRoutes from './routes/me';
@@ -29,6 +30,8 @@ app.use('/auth', authRouter);
 app.use('/products', productsRouter);
 app.use('/comments', commentsRouter);
 app.use(meRoutes);
+app.use('/users', usersRouter);
+
 
 app.use('/stats', statsRoutes);
 
