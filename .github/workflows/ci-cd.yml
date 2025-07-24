@@ -157,7 +157,7 @@ jobs:
             echo "FRONTEND_PORT=4004" >> .env
             echo "VITE_API_URL=http://34.254.182.93:3004" >> frontend/.env
             git fetch --all --tags
-            git checkout ${{ github.ref_name }}
+            git checkout tags/${{ github.ref_name }} -b temp-${{ github.ref_name }}
             docker compose down
             docker compose up -d --build
           EOF
