@@ -107,32 +107,6 @@ jobs:
   # -----------------------------
   # CD JOBS : deploy depending on environment
   # -----------------------------
-  deploy-dev:
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-      - name: Deploy to DEV
-        run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-            if [ ! -d ~/app-dev/.git ]; then
-                rm -rf ~/app-dev
-                git clone https://github.com/${{ github.repository }} ~/app-dev
-            fi
-            cd ~/app-dev
-            git fetch origin
-            git reset --hard origin/develop
-            echo "POSTGRES_PORT=5434" > .env
-            echo "BACKEND_PORT=3001" >> .env
-            echo "FRONTEND_PORT=4001" >> .env
-            echo "VITE_API_URL=http://54.246.79.227:3001" >> frontend/.env
-            docker compose down
-            docker compose up -d --build
-          EOF
 
   deploy-preprod:
     if: github.ref == 'refs/heads/main'
