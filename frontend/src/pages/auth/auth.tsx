@@ -1,3 +1,4 @@
+import SigninForm from './components/SigninForm';
 import type { SignupData } from './components/SignupForm';
 import SignupForm from './components/SignupForm';
 import { signup } from './services/auth';
@@ -12,5 +13,10 @@ export default function SignupPage() {
     }
   };
 
-  return <SignupForm onSubmit={handleSignup} />;
+  return (
+    <>
+      <SignupForm onSubmit={handleSignup} />
+      <SigninForm onSuccess={() => console.log('gros zeub')} />
+    </>
+  );
 }

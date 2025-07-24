@@ -182,6 +182,7 @@ jobs:
             echo "BACKEND_PORT=3004" >> .env
             echo "FRONTEND_PORT=4004" >> .env
             echo "VITE_API_URL=http://54.246.79.227:3004" >> frontend/.env
+            echo "NODE_ENV=production"
             git fetch --all --tags
             git checkout ${{ github.ref_name }}
             docker compose down

@@ -11,8 +11,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
 router.post('/signup', async (req, res) => {
   const { name, email, password } = req.body;
-  const result = await pool.query('SELECT * FROM app_schema.users');
-  console.log(result.rows);
   try {
     const hash = await bcrypt.hash(password, 10);
     await pool.query('INSERT INTO app_schema.users (name, email, password) VALUES ($1, $2, $3)', [
@@ -41,11 +39,27 @@ router.post('/login', async (req, res) => {
       expiresIn: '1d',
     });
 
-    res.json({ token });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.json({ message: 'Logged in' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Login failed' });
   }
+});
+
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
+  res.status(200).json({ message: 'Logged out' });
 });
 
 export default router;
