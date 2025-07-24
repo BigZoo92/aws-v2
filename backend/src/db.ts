@@ -2,7 +2,6 @@ import { Pool } from 'pg';
 import dotenv from 'dotenv';
 dotenv.config();
 
-console.log(process.env.POSTGRES_USER);
 const pool = new Pool({
   user: process.env.POSTGRES_USER || 'postgres',
   host: process.env.POSTGRES_HOST || 'db',
