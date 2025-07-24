@@ -20,7 +20,7 @@ export default function ProductPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:3000/products/${id}`)
+    fetch(`http://localhost:3000/products/${id} `)
       .then((res) => {
         if (!res.ok) throw new Error('Produit non trouvé');
         return res.json();

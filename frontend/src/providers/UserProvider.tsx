@@ -8,7 +8,7 @@ interface User {
 }
 
 interface UserContextProps {
-  user: User | null;
+  user: User | null | 'loading';
   loading: boolean;
   refetch: () => Promise<void>;
   logout: () => Promise<void>;
@@ -17,7 +17,7 @@ interface UserContextProps {
 const UserContext = createContext<UserContextProps | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null | 'loading'>('loading');
   const [loading, setLoading] = useState(true);
 
   const refetch = async () => {
@@ -42,6 +42,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
       credentials: 'include',
+      method: 'POST',
     });
     setUser(null);
   };
@@ -49,10 +50,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refetch();
   }, []);
-
-  useEffect(() => {
-    console.log({ user });
-  }, [user]);
 
   return (
     <UserContext.Provider value={{ user, loading, refetch, logout }}>

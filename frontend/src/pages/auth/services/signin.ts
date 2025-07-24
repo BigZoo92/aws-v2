@@ -1,7 +1,6 @@
 import type { SigninData } from '../components/SigninForm';
 
 export async function signin(data: SigninData) {
-  console.log(data);
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
       method: 'POST',

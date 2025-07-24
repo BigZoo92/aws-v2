@@ -1,32 +1,27 @@
-import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
+import { useUser } from '@/providers/UserProvider';
 
-// TODO: Remplacer user_id par l'id de l'utilisateur connecté quand l'auth sera en place
 const user_id = 1;
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/";
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/';
 
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
+  const { user, refetch, logout } = useUser();
   const [products, setProducts] = useState<any[]>([]);
   const [comments, setComments] = useState<any[]>([]);
-  const [editName, setEditName] = useState("");
+  const [editName, setEditName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    // TODO: Remplacer par un appel API qui récupère l'utilisateur connecté
-    fetch(`${API_URL}users/${user_id}`)
-      .then(res => res.json())
-      .then(data => {
-        setUser(data);
-        setEditName(data.name);
-      });
-    fetch(`${API_URL}products?user_id=${user_id}`)
-      .then(res => res.json())
-      .then(prods => {
+    if (!user || user === 'loading') return;
+    setEditName(user.name);
+    fetch(`${API_URL}/products?user_id=${user_id}`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((prods) => {
         setProducts(prods);
         if (prods.length === 0) {
           setComments([]);
@@ -39,9 +34,9 @@ export default function Dashboard() {
         fetch(`${API_URL}comments/by-products`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(body),
         })
-          .then(r => r.json())
+          .then((r) => r.json())
           .then((allComments: any) => {
             if (!Array.isArray(allComments)) {
               setComments([]);
@@ -52,36 +47,44 @@ export default function Dashboard() {
             setComments(flat);
           });
       });
-  }, []);
+  }, [user]);
 
   const handleNameChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    const res = await fetch(`${API_URL}users/${user_id}/name`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: editName })
+    const res = await fetch(`${API_URL}/users/${user_id}/name`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: editName }),
+      credentials: 'include',
     });
     if (res.ok) {
-      setSuccess("Nom modifié avec succès");
-      setUser({ ...user, name: editName });
+      setSuccess('Nom modifié avec succès');
+      refetch();
     } else {
-      setError("Erreur lors de la modification du nom");
+      setError('Erreur lors de la modification du nom');
     }
   };
+
+  useEffect(() => {
+    refetch();
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-8">
       <Card>
         <CardHeader>
+          <Button onClick={logout} variant="destructive" className="ml-auto block">
+            Se déconnecter
+          </Button>
           <CardTitle>Informations personnelles</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleNameChange} className="space-y-2">
             <div>
               <label htmlFor="name">Nom</label>
-              <Input id="name" value={editName} onChange={e => setEditName(e.target.value)} />
+              <Input id="name" value={editName} onChange={(e) => setEditName(e.target.value)} />
             </div>
             <Button type="submit">Modifier le nom</Button>
           </form>
@@ -104,13 +107,13 @@ export default function Dashboard() {
                     <span className="font-semibold">{p.title}</span> — {p.price} €
                   </div>
                   <Link to={`/products/${p.id}`}>
-                    <Button size="sm" variant="outline">Voir</Button>
+                    <Button size="sm" variant="outline">
+                      Voir
+                    </Button>
                   </Link>
                 </li>
               ))}
             </ul>
-            
-            
           )}
         </CardContent>
       </Card>

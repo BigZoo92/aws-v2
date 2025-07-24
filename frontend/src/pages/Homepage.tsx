@@ -7,8 +7,12 @@ import SignupForm, { type SignupData } from './auth/components/SignupForm';
 import { signup } from './auth/services/auth';
 import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { fetchStats } from '@/lib/getStats';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '@/providers/UserProvider';
 
 export default function Homepage() {
+  const navigate = useNavigate();
+  const { user, refetch } = useUser();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [totalUsers, setTotalUsers] = useState<number | null>(null);
   const [totalProducts, setTotalProducts] = useState<number | null>(null);
@@ -40,6 +44,12 @@ export default function Homepage() {
     getStats();
   }, []);
 
+  useEffect(() => {
+    if (user && user !== 'loading') {
+      navigate('/dashboard');
+    }
+  }, [user]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-700 flex flex-col gap-8 items-center justify-center p-4">
       <div className="relative bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-8 w-full max-w-md transition-all">
@@ -62,7 +72,7 @@ export default function Homepage() {
 
         <div className="animate-in fade-in zoom-in-50 duration-300">
           {mode === 'login' ? (
-            <SigninForm onSuccess={() => toast('Bienvenue !')} />
+            <SigninForm onSuccess={() => navigate('/dashboard')} />
           ) : (
             <SignupForm onSubmit={handleSignup} />
           )}
@@ -70,13 +80,13 @@ export default function Homepage() {
       </div>
       <Card>
         <CardContent>
-          <CardTitle>Wesh</CardTitle>
-          Nombre d'utilisateurs inscrits : {totalUsers}
+          <CardTitle>Nombre d'utilisateurs inscrits</CardTitle>
+          {totalUsers}
         </CardContent>
 
         <CardContent>
-          <CardTitle>Wesh 2</CardTitle>
-          Nombre de produits sur notre site : {totalProducts}
+          <CardTitle>Nombre de produits sur notre site</CardTitle>
+          {totalProducts}
         </CardContent>
       </Card>
     </div>
