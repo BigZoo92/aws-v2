@@ -5,12 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
+import { fetchComments, postComment } from './services/comments';
 
 export default function ProductPage() {
   const { id } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [comments, setComments] = useState<any[]>([]);
+  const [comment, setComment] = useState("");
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [errorComments, setErrorComments] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -23,6 +29,33 @@ export default function ProductPage() {
       .catch(() => setError('Produit non trouvé'))
       .finally(() => setLoading(false));
   }, [id]);
+
+  // Charge les commentaires à l'affichage
+  useEffect(() => {
+    if (!id) return;
+    setLoadingComments(true);
+    fetchComments(Number(id))
+      .then(setComments)
+      .catch(() => setErrorComments('Erreur lors du chargement des commentaires'))
+      .finally(() => setLoadingComments(false));
+  }, [id]);
+
+  // Tri des commentaires par date (plus récent en haut)
+  const sortedComments = [...comments].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!comment.trim() || !id) return;
+    setLoadingComments(true);
+    // TODO : Remplacer 1 par l'id réel de l'utilisateur connecté quand dispo
+    postComment(Number(id), 1, comment)
+      .then(newComment => {
+        setComments([newComment, ...comments]);
+        setComment("");
+      })
+      .catch(() => setErrorComments('Erreur lors de la publication du commentaire'))
+      .finally(() => setLoadingComments(false));
+  };
 
   if (loading) {
     return (
@@ -73,6 +106,27 @@ export default function ProductPage() {
           </div>
         </CardContent>
       </Card>
+      <form onSubmit={handleSubmit} className="flex gap-2 mt-8 mb-4">
+        <Input
+          placeholder="écrire un commentaire"
+          value={comment}
+          onChange={e => setComment(e.target.value)}
+          disabled={loadingComments}
+        />
+        <Button type="submit" disabled={loadingComments || !comment.trim()}>Publier</Button>
+      </form>
+      {errorComments && <div className="text-red-500 mb-2">{errorComments}</div>}
+      <div>
+        {loadingComments && <div className="text-muted-foreground">Chargement des commentaires...</div>}
+        {!loadingComments && sortedComments.length === 0 && <div className="text-muted-foreground">Aucun commentaire pour ce produit.</div>}
+        {sortedComments.map(c => (
+          <div key={c.id} className="border-b border-muted py-2">
+            <div className="font-semibold text-sm">{c.user || `Vous`}</div>
+            <div className="text-base">{c.content}</div>
+            <div className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleString()}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
