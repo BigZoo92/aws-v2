@@ -130,7 +130,7 @@ jobs:
             echo "POSTGRES_PORT=5433" > .env
             echo "BACKEND_PORT=3002" >> .env
             echo "FRONTEND_PORT=4002" >> .env
-            echo "VITE_API_URL=http://54.246.79.227:3002" >> frontend/.env
+            echo "VITE_API_URL=http://34.254.182.93:3002" >> frontend/.env
             docker compose down
             docker compose up -d --build
           EOF
@@ -155,8 +155,7 @@ jobs:
             echo "POSTGRES_PORT=5432" > .env
             echo "BACKEND_PORT=3004" >> .env
             echo "FRONTEND_PORT=4004" >> .env
-            echo "VITE_API_URL=http://54.246.79.227:3004" >> frontend/.env
-            echo "NODE_ENV=production"
+            echo "VITE_API_URL=http://34.254.182.93:3004" >> frontend/.env
             git fetch --all --tags
             git checkout ${{ github.ref_name }}
             docker compose down
