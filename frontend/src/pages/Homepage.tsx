@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import SigninForm from './auth/components/SigninForm';
 import SignupForm, { type SignupData } from './auth/components/SignupForm';
 import { signup } from './auth/services/auth';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 
 export default function Homepage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
