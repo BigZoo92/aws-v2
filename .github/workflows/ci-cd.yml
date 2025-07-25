@@ -119,7 +119,7 @@ jobs:
           ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
       - name: Deploy to PREPROD
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << EOF
             if [ ! -d ~/app-preprod/.git ]; then
                 rm -rf ~/app-preprod
                 git clone https://github.com/${{ github.repository }} ~/app-preprod
@@ -127,13 +127,16 @@ jobs:
             cd ~/app-preprod
             git fetch origin
             git reset --hard origin/main
-            echo "POSTGRES_PORT=5433" > .env
+            echo "POSTGRES_PORT=5434" > .env
             echo "BACKEND_PORT=3002" >> .env
             echo "FRONTEND_PORT=4002" >> .env
             echo "PROMETHEUS_PORT=9091" >> .env
             echo "NODE_EXPORTER_PORT=9101" >> .env
             echo "GRAPHANA_PORT=3005" >> .env
-            echo "VITE_API_URL=http://34.254.182.93:3002" >> frontend/.env
+            echo "VITE_API_URL=http://52.16.197.249:3002" >> frontend/.env
+            echo "POSTGRES_PORT=5433" >> backend/.env
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> backend/.env
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> backend/.env
             docker compose down
             docker compose up -d --build
           EOF
@@ -161,7 +164,10 @@ jobs:
             echo "PROMETHEUS_PORT=9092" >> .env
             echo "NODE_EXPORTER_PORT=9102" >> .env
             echo "GRAPHANA_PORT=3006" >> .env
-            echo "VITE_API_URL=http://34.254.182.93:3004" >> frontend/.env
+            echo "VITE_API_URL=http://52.16.197.249:3004" >> frontend/.env
+            echo "POSTGRES_PORT=5432" >> backend/.env
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> backend/.env
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> backend/.env
             git fetch --all --tags
             git checkout tags/${{ github.ref_name }} -b temp-${{ github.ref_name }}
             docker compose down
