@@ -2,8 +2,12 @@
 
 ## 🌐 URLS
 
-- 🔴 **Production** : _(à compléter)_
-- 🟠 **Préproduction** : _(à compléter)_
+- 🔴 **Production** : [http://52.16.197.249:4004](http://52.16.197.249:4004)
+- 🟠 **Préproduction** : [http://52.16.197.249:4002](http://52.16.197.249:4002)
+- 🟠 **Graphana Prod** : [http://52.16.197.249:3006/](http://52.16.197.249:3006/)
+- 🟠 **Prometheus Prod** : [http://52.16.197.249:9092/](http://52.16.197.249:9092/)
+- 🟠 **Graphana Preprod** : [http://52.16.197.249:3005/](http://52.16.197.249:3005/)
+- 🟠 **Prometheus Preprod** : [http://52.16.197.249:9091/](http://52.16.197.249:9091/)
 
 ---
 
@@ -214,7 +218,10 @@ pnpm dev
   * CPU, RAM, latence, erreurs
   * Logs système
 
-> Captures d’écran des dashboards disponibles dans `/docs/screenshots`.
+> Captures d’écran des dashboards graphana de preprod :
+
+![Dashboard Grafana](./screenshots/dashboard.png)
+
 
 ---
 
@@ -242,6 +249,12 @@ pnpm dev
 * `develop` : préproduction
 * `feature/*` : nouvelles features
 * `user/*` : environnements utilisateurs (tests, démo...)
+
+---
+
+## Le gros + de notre projet
+
+La combinaison EC2 + S3 + docker + deploiment CI/CD via github est une vraie preuve de nos magnifiques capacités de devops
 
 ---
 
