@@ -1,6 +1,5 @@
 // lib/s3.ts
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { randomUUID } from 'crypto';
+import { S3Client } from '@aws-sdk/client-s3';
 import dotenv from 'dotenv';
 
 dotenv.config();

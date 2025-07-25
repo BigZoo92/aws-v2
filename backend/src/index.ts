@@ -1,13 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import productsRouter from './routes/products';
-import usersRouter from './routes/users';
-import authRouter from './routes/auth';
-import commentsRouter from './routes/comments';
-import meRoutes from './routes/me';
+import productsRouter from './routes/products.js';
+import usersRouter from './routes/users.js';
+import authRouter from './routes/auth.js';
+import commentsRouter from './routes/comments.js';
+import meRoutes from './routes/me.js';
 import cookieParser from 'cookie-parser';
-import statsRoutes from './routes/stats';
+import statsRoutes from './routes/stats.js';
 
 dotenv.config();
 const app = express();

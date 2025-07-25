@@ -1,6 +1,6 @@
 import express from 'express';
-import pool from '../db';
-import { upload } from '../middlewares/upload';
+import pool from '../db.js';
+import { upload } from '../middlewares/upload.js';
 
 const router = express.Router();
 
