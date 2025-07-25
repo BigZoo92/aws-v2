@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useUser } from '@/providers/UserProvider';
 import type { Product } from '@/db-schema';
 
@@ -11,7 +11,6 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/';
 
 export default function Dashboard() {
   const { user, refetch, logout } = useUser();
-  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [editName, setEditName] = useState('');

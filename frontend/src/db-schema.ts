@@ -16,6 +16,7 @@ export type Product = {
   description: string | null;
   price: number | null;
   created_at: string;
+  image_url: string | null;
 };
 
 export type Comment = {

@@ -12,7 +12,7 @@ import { useUser } from '@/providers/UserProvider';
 
 export default function Homepage() {
   const navigate = useNavigate();
-  const { user, refetch } = useUser();
+  const { user } = useUser();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [totalUsers, setTotalUsers] = useState<number | null>(null);
   const [totalProducts, setTotalProducts] = useState<number | null>(null);

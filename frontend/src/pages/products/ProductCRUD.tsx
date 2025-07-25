@@ -17,6 +17,7 @@ export default function ProductCRUD() {
     description: '',
     price: null,
     user_id: 1,
+    image_url: null,
   });
   const [editingId, setEditingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -40,8 +41,12 @@ export default function ProductCRUD() {
     fetchProducts();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, isFile?: boolean) => {
+    console.log(e);
+    setForm((f) => ({
+      ...f,
+      [e.target.name]: isFile && e.target?.files ? e.target.files[0] : e.target.value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,16 +55,24 @@ export default function ProductCRUD() {
     setError(null);
     try {
       const method = editingId ? 'PUT' : 'POST';
+      console.log({ form });
       const url = editingId
         ? `${import.meta.env.VITE_API_URL}/products/${editingId}`
         : `${import.meta.env.VITE_API_URL}/products`;
+
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          const newValue = typeof value === 'number' ? String(value) : value;
+          formData.append(key, newValue);
+        }
+      });
       await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: formData,
         credentials: 'include',
       });
-      setForm({ title: '', description: '', price: null, user_id: 1 });
+      setForm({ title: '', description: '', price: null, user_id: 1, image_url: null });
       setEditingId(null);
       fetchProducts();
     } catch (e) {
@@ -75,6 +88,7 @@ export default function ProductCRUD() {
       description: p.description || '',
       price: p.price,
       user_id: p.user_id,
+      image_url: p.image_url,
     });
     setEditingId(p.id);
   };
@@ -117,7 +131,7 @@ export default function ProductCRUD() {
             id="description"
             name="description"
             value={form.description || ''}
-            onChange={handleChange}
+            onChange={(e) => handleChange(e as unknown as React.ChangeEvent<HTMLInputElement>)}
           />
         </div>
 
@@ -131,6 +145,7 @@ export default function ProductCRUD() {
             onChange={handleChange}
           />
         </div>
+        <input type="file" name="image_url" onChange={(e) => handleChange(e, true)} />
 
         <div className="flex space-x-2">
           <Button type="submit" disabled={loading}>
@@ -158,26 +173,46 @@ export default function ProductCRUD() {
           <Card key={p.id}>
             <CardContent className="p-4 space-y-2">
               <div className="flex justify-between items-center">
+                {p.image_url && (
+                  <div
+                    style={{
+                      maxWidth: 300,
+                      maxHeight: 300,
+                    }}
+                  >
+                    <img
+                      style={{
+                        objectFit: 'contain',
+                        width: '100%',
+                        borderRadius: '12px',
+                      }}
+                      src={p.image_url}
+                      alt=""
+                    />
+                  </div>
+                )}
                 <div>
                   <h3 className="text-lg font-semibold">{p.title}</h3>
                   <p className="text-sm text-muted-foreground">{p.description}</p>
                   <p className="font-bold mt-1">{p.price} €</p>
                 </div>
-                {p.user_id === user.id && (
-                  <div className="flex flex-col space-y-2 items-end">
-                    <Button size="sm" variant="default" onClick={() => handleEdit(p)}>
-                      Modifier
-                    </Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(p.id)}>
-                      Supprimer
-                    </Button>
-                    <Link to={`/products/${p.id}`}>
-                      <Button size="sm" variant="outline">
-                        Détail
+                <div className="flex flex-col space-y-2 items-end">
+                  {p.user_id === user.id && (
+                    <>
+                      <Button size="sm" variant="default" onClick={() => handleEdit(p)}>
+                        Modifier
                       </Button>
-                    </Link>
-                  </div>
-                )}
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(p.id)}>
+                        Supprimer
+                      </Button>
+                    </>
+                  )}
+                  <Link to={`/products/${p.id}`}>
+                    <Button size="sm" variant="outline">
+                      Détail
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>

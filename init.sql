@@ -24,5 +24,9 @@ CREATE TABLE IF NOT EXISTS comments (
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW(),
+  image_url TEXT
 );
+
+ALTER TABLE products ADD COLUMN image_url TEXT;
+

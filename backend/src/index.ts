@@ -32,7 +32,6 @@ app.use('/comments', commentsRouter);
 app.use(meRoutes);
 app.use('/users', usersRouter);
 
-
 app.use('/stats', statsRoutes);
 
 app.get('/', (_, res) => res.send('API OK ✅'));
